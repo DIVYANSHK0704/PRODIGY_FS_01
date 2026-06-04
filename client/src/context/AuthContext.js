@@ -11,15 +11,13 @@ export const AuthProvider = ({ children }) => {
   const navigate              = useNavigate();
   const channelRef            = useRef(null);
 
-  // FIX #4: listen for redirect events dispatched by api.js interceptor
-  //         so we use React Router navigate() instead of window.location.href
   useEffect(() => {
     const handleRedirect = (e) => navigate(e.detail.to, { replace: true });
     window.addEventListener('auth:redirect', handleRedirect);
     return () => window.removeEventListener('auth:redirect', handleRedirect);
   }, [navigate]);
 
-  // FIX #6: BroadcastChannel with try/catch fallback for unsupported browsers
+
   useEffect(() => {
     let channel = null;
     try {
@@ -36,7 +34,6 @@ export const AuthProvider = ({ children }) => {
         }
       };
     } catch {
-      // BroadcastChannel not supported (e.g. older Safari) — graceful degradation
       console.warn('BroadcastChannel not supported; cross-tab sync disabled.');
     }
 
@@ -47,7 +44,6 @@ export const AuthProvider = ({ children }) => {
       channel?.close();
       window.removeEventListener('auth:logout', handleLogout);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadUser = useCallback(async () => {
